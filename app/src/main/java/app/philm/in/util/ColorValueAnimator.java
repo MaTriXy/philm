@@ -16,10 +16,13 @@
 
 package app.philm.in.util;
 
+import android.animation.ValueAnimator;
+import android.support.v4.graphics.ColorUtils;
+import android.view.View;
+
 import com.google.common.base.Preconditions;
 
-import android.animation.ValueAnimator;
-import android.view.View;
+import java.util.Arrays;
 
 public class ColorValueAnimator {
 
@@ -40,7 +43,12 @@ public class ColorValueAnimator {
         Preconditions.checkArgument(current.length == target.length,
                 "current and target must be the same length");
 
-        if (rootView.getDrawingTime() <= 0 ) {
+        if (Arrays.equals(current, target)) {
+            // If the current and target are equal, just return
+            return null;
+        }
+
+        if (rootView.getDrawingTime() <= 0) {
             listener.onUpdateColor(target);
             return null;
         }
@@ -53,18 +61,16 @@ public class ColorValueAnimator {
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                final float currentValue = 1f - (Float) valueAnimator.getAnimatedValue();
+                final float currentValue = 1f - valueAnimator.getAnimatedFraction();
 
                 for (int i = 0, z = colors.length; i < z ; i++) {
-                    colors[i] = ColorUtils.blendColors(
-                            current[i],
-                            target[i],
-                            currentValue);
+                    colors[i] = ColorUtils.blendARGB(current[i], target[i], currentValue);
                 }
 
                 listener.onUpdateColor(colors);
             }
         });
+
         animator.start();
 
         return animator;

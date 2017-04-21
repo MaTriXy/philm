@@ -16,12 +16,10 @@
 
 package app.philm.in.fragments.base;
 
+import android.support.annotation.StringRes;
+import android.widget.Toast;
 
-import com.github.johnpersano.supertoasts.SuperCardToast;
-import com.github.johnpersano.supertoasts.SuperToast;
-import com.github.johnpersano.supertoasts.util.Style;
-
-import android.graphics.Rect;
+import com.google.common.base.Objects;
 
 import app.philm.in.PhilmApplication;
 import app.philm.in.controllers.MovieController;
@@ -29,14 +27,13 @@ import app.philm.in.model.ColorScheme;
 import app.philm.in.network.NetworkError;
 import app.philm.in.view.StringManager;
 
-
-public abstract class BasePhilmMovieFragment extends InsetAwareFragment
+public abstract class BasePhilmMovieFragment extends BasePhilmFragment
         implements MovieController.MovieUi {
 
     private MovieController.MovieUiCallbacks mCallbacks;
     private ColorScheme mColorScheme;
 
-    private SuperCardToast mToast;
+    private Toast mToast;
 
     @Override
     public void onResume() {
@@ -63,21 +60,19 @@ public abstract class BasePhilmMovieFragment extends InsetAwareFragment
 
     @Override
     public void showError(NetworkError error) {
-        showToast(StringManager.getStringResId(error), Style.getStyle(Style.RED));
+        showToast(StringManager.getStringResId(error));
     }
 
     protected final void cancelToast() {
         if (mToast != null) {
-            mToast.dismiss();
+            mToast.cancel();
         }
     }
 
-    protected final void showToast(int text, Style style) {
+    protected final void showToast(@StringRes int text) {
         cancelToast();
 
-        mToast = SuperCardToast.create(
-                getActivity(), getText(text), SuperToast.Duration.MEDIUM, style);
-        mToast.setIcon(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
+        mToast = Toast.makeText(getContext(), text, Toast.LENGTH_SHORT);
         mToast.show();
     }
 
@@ -99,14 +94,9 @@ public abstract class BasePhilmMovieFragment extends InsetAwareFragment
     }
 
     @Override
-    public void populateInsets(Rect insets) {
-    }
-
-    @Override
     public void setColorScheme(ColorScheme colorScheme) {
-        if (mColorScheme != colorScheme) {
+        if (!Objects.equal(mColorScheme, colorScheme)) {
             mColorScheme = colorScheme;
-
             onColorSchemeChanged(colorScheme);
         }
     }

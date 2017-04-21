@@ -17,6 +17,7 @@
 package app.philm.in.tasks;
 
 
+import com.uwetrottmann.tmdb.entities.CastMember;
 import com.uwetrottmann.tmdb.entities.Credits;
 
 import java.util.Collections;
@@ -52,9 +53,9 @@ public class FetchTmdbMovieCreditsRunnable extends BaseMovieRunnable<Credits> {
         if (movie != null) {
             if (!PhilmCollections.isEmpty(result.cast)) {
                 // Sort the Cast based on order first
-                Collections.sort(result.cast, new Comparator<Credits.CastMember>() {
+                Collections.sort(result.cast, new Comparator<CastMember>() {
                     @Override
-                    public int compare(Credits.CastMember castMember, Credits.CastMember castMember2) {
+                    public int compare(CastMember castMember, CastMember castMember2) {
                         return castMember.order - castMember2.order;
                     }
                 });

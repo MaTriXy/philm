@@ -16,8 +16,6 @@
 
 package app.philm.in.fragments;
 
-import com.google.common.base.Preconditions;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -29,9 +27,11 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
+import com.google.common.base.Preconditions;
+
 import app.philm.in.R;
 import app.philm.in.controllers.MovieController;
-import app.philm.in.drawable.TintingBitmapDrawable;
+import app.philm.in.drawable.DrawableTintUtils;
 import app.philm.in.fragments.base.BasePhilmMovieDialogFragment;
 import app.philm.in.model.PhilmMovie;
 import app.philm.in.network.NetworkError;
@@ -83,8 +83,8 @@ public class CheckinMovieFragment extends BasePhilmMovieDialogFragment
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.movie_checkin);
-        builder.setIcon(TintingBitmapDrawable.createFromColorResource(getResources(),
-                R.drawable.ic_btn_checkin, R.color.primary_accent_color));
+        builder.setIcon(DrawableTintUtils.createFromColorRes(getContext(),
+                R.drawable.ic_btn_checkin, R.color.primary_color));
         builder.setView(layout);
         builder.setPositiveButton(R.string.movie_checkin, this);
         builder.setNegativeButton(android.R.string.cancel, this);

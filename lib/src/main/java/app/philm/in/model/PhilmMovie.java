@@ -16,9 +16,10 @@
 
 package app.philm.in.model;
 
+import static app.philm.in.util.TimeUtils.isPastThreshold;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-
 import com.jakewharton.trakt.entities.Images;
 import com.jakewharton.trakt.entities.Ratings;
 import com.jakewharton.trakt.enumerations.Rating;
@@ -43,9 +44,7 @@ import app.philm.in.util.IntUtils;
 import app.philm.in.util.PhilmCollections;
 import app.philm.in.util.TextUtils;
 
-import static app.philm.in.util.TimeUtils.isPastThreshold;
-
-public class PhilmMovie extends PhilmModel {
+public class PhilmMovie extends PhilmModel<PhilmMovie> {
 
     public static final int NOT_SET = 0;
 
@@ -72,13 +71,13 @@ public class PhilmMovie extends PhilmModel {
 
         @Override
         public int compare(ListItem<PhilmMovie> item1, ListItem<PhilmMovie> item2) {
-            if (item1.getType() == ListItem.TYPE_SECTION) {
+            if (item1.getListType() == ListItem.TYPE_SECTION) {
                 return -1;
-            } else if (item2.getType() == ListItem.TYPE_SECTION) {
+            } else if (item2.getListType() == ListItem.TYPE_SECTION) {
                 return 1;
             } else {
-                final long time1 = item1.getItem().getReleasedTime();
-                final long time2 = item2.getItem().getReleasedTime();
+                final long time1 = item1.getListItem().getReleasedTime();
+                final long time2 = item2.getListItem().getReleasedTime();
                 if (time1 < time2) {
                     return ascending ? -1 : 1;
                 } else if (time1 > time2) {
@@ -189,16 +188,14 @@ public class PhilmMovie extends PhilmModel {
 
         loadedFromTrakt = true;
 
-        if (!TextUtils.isEmpty(movie.tmdbId)) {
-            tmdbId = Integer.parseInt(movie.tmdbId);
-        }
+        tmdbId = movie.tmdbId;
         imdbId = movie.imdb_id;
 
         if (_id == null || idType == NOT_SET) {
             if (!TextUtils.isEmpty(imdbId)) {
                 _id = new Long(imdbId.hashCode());
                 idType = TYPE_IMDB;
-            } else if (tmdbId != null) {
+            } else if (tmdbId != 0) {
                 _id = new Long(tmdbId);
                 idType = TYPE_TMDB;
             } else {

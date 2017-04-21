@@ -16,8 +16,6 @@
 
 package app.philm.in.util;
 
-import com.google.common.base.Objects;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -29,6 +27,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
+
+import com.google.common.base.Objects;
 
 import app.philm.in.R;
 
@@ -199,6 +199,10 @@ public class AnimationUtils {
                 second.setAlpha(0xff);
             }
         }
+    }
+
+    public static float interpolate(float startValue, float endValue, float progress) {
+        return startValue + ((endValue - startValue) * progress);
     }
 
     /**

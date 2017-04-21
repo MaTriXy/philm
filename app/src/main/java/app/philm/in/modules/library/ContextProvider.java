@@ -16,18 +16,19 @@
 
 package app.philm.in.modules.library;
 
-import com.google.common.base.Preconditions;
-
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
 import android.content.Context;
 import android.content.res.AssetManager;
+
+import com.google.common.base.Preconditions;
 
 import java.io.File;
 
 import javax.inject.Singleton;
 
 import app.philm.in.qualifiers.ApplicationContext;
+import app.philm.in.qualifiers.FilesDirectory;
 import dagger.Module;
 import dagger.Provides;
 
@@ -52,7 +53,7 @@ public class ContextProvider {
         return AccountManager.get(mApplicationContext);
     }
 
-    @Provides
+    @Provides @FilesDirectory
     public File providePrivateFileDirectory() {
         return mApplicationContext.getFilesDir();
     }

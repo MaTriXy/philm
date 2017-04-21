@@ -16,9 +16,6 @@
 
 package app.philm.in.view;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -28,6 +25,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import app.philm.in.R;
 import app.philm.in.util.TextUtils;
@@ -39,7 +39,7 @@ public class MovieDetailInfoLayout extends LinearLayout implements Target {
 
     public MovieDetailInfoLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(context).inflate(R.layout.include_movie_detail_info, this, true);
+        LayoutInflater.from(context).inflate(R.layout.item_movie_detail_details_line, this, true);
 
         mTitleTextView = (TextView) findViewById(android.R.id.text1);
         mContentTextView = (TextView) findViewById(android.R.id.text2);

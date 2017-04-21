@@ -102,4 +102,10 @@ public interface Display {
 
     public void setColorScheme(ColorScheme colorScheme);
 
+    public boolean toggleDrawer();
+
+    public void setStatusBarColor(float scroll);
+
+    public void setSupportActionBar(Object toolbar, boolean handleBackground);
+
 }

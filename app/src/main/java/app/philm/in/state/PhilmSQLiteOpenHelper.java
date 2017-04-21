@@ -16,25 +16,23 @@
 
 package app.philm.in.state;
 
-import com.google.common.base.Preconditions;
-
-import com.crashlytics.android.Crashlytics;
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.ArrayList;
+import com.google.common.base.Preconditions;
+
 import java.util.Collection;
 import java.util.List;
 
 import app.philm.in.Constants;
 import app.philm.in.model.PhilmMovie;
 import app.philm.in.model.PhilmUserProfile;
+import nl.qbusict.cupboard.DatabaseCompartment;
 import nl.qbusict.cupboard.QueryResultIterable;
-
-import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseHelper {
 
@@ -84,52 +82,12 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
 
     @Override
     public List<PhilmMovie> getLibrary() {
-        assetNotClosed();
-
-        ArrayList<PhilmMovie> movies = null;
-        QueryResultIterable<PhilmMovie> itr = null;
-
-        try {
-            itr = cupboard().withDatabase(getReadableDatabase()).query(PhilmMovie.class)
-                    .withSelection("traktInCollection = ? OR traktWatched = ?", "1", "1")
-                    .query();
-
-            movies = new ArrayList<>();
-
-            for (PhilmMovie movie : itr) {
-                movies.add(movie);
-            }
-        } finally {
-            if (itr != null) {
-                itr.close();
-            }
-        }
-        return movies;
+        return queryMovies("traktInCollection = ? OR traktWatched = ?", "1", "1");
     }
 
     @Override
     public List<PhilmMovie> getWatchlist() {
-        assetNotClosed();
-
-        ArrayList<PhilmMovie> movies = null;
-        QueryResultIterable<PhilmMovie> itr = null;
-
-        try {
-            itr = cupboard().withDatabase(getReadableDatabase()).query(PhilmMovie.class)
-                    .withSelection("traktInWatchlist = ?", "1")
-                    .query();
-
-            movies = new ArrayList<>();
-
-            for (PhilmMovie movie : itr) {
-                movies.add(movie);
-            }
-        } finally {
-            if (itr != null) {
-                itr.close();
-            }
-        }
-        return movies;
+        return queryMovies("traktInWatchlist = ?", "1");
     }
 
     @Override
@@ -139,29 +97,17 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
         try {
             cupboard().withDatabase(getWritableDatabase()).put(movie);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
         }
     }
 
     @Override
     public void put(Collection<PhilmMovie> movies) {
         assetNotClosed();
-
-        SQLiteDatabase db = null;
-
         try {
-            db = getWritableDatabase();
-            db.beginTransaction();
-            for (PhilmMovie movie : movies) {
-                cupboard().withDatabase(db).put(movie);
-            }
-            db.setTransactionSuccessful();
+            cupboard().withDatabase(getWritableDatabase()).put(movies);
         } catch (Exception e) {
-            Crashlytics.logException(e);
-        } finally {
-            if (db != null) {
-                db.endTransaction();
-            }
+            // Crashlytics.logException(e);
         }
     }
 
@@ -174,12 +120,13 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
         try {
             db = getWritableDatabase();
             db.beginTransaction();
+            final DatabaseCompartment dbc = cupboard().withDatabase(db);
             for (PhilmMovie movie : movies) {
-                cupboard().withDatabase(db).delete(movie);
+                dbc.delete(movie);
             }
             db.setTransactionSuccessful();
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
         } finally {
             if (db != null) {
                 db.endTransaction();
@@ -197,7 +144,7 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
                     .withSelection("username = ?", username)
                     .get();
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
             return null;
         }
     }
@@ -208,7 +155,7 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
         try {
             cupboard().withDatabase(getWritableDatabase()).put(profile);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
         }
     }
 
@@ -218,7 +165,7 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
         try {
             cupboard().withDatabase(getWritableDatabase()).delete(profile);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
         }
     }
 
@@ -246,11 +193,29 @@ public class PhilmSQLiteOpenHelper extends SQLiteOpenHelper implements DatabaseH
                 Log.d(LOG_TAG, "deleteAllPhilmMovies. Deleted " + numDeleted + " rows.");
             }
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            // Crashlytics.logException(e);
         }
     }
 
     private void assetNotClosed() {
         Preconditions.checkState(!mIsClosed, "Database is closed");
+    }
+
+    private List<PhilmMovie> queryMovies(String selection, String... selectionArgs) {
+        assetNotClosed();
+        QueryResultIterable<PhilmMovie> itr = null;
+
+        try {
+            itr = cupboard().withDatabase(getReadableDatabase()).query(PhilmMovie.class)
+                    .withSelection(selection, selectionArgs)
+                    .query();
+        } finally {
+            if (itr != null) {
+                itr.close();
+                itr = null;
+            }
+        }
+
+        return itr != null ? itr.list() : null;
     }
 }

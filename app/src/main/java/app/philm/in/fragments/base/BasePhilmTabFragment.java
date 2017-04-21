@@ -16,8 +16,8 @@
 
 package app.philm.in.fragments.base;
 
-import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.philm.in.R;
-import app.philm.in.view.SlidingTabLayout;
 
 public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
 
@@ -38,9 +37,7 @@ public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
 
     private ViewPager mViewPager;
     private TabPagerAdapter mAdapter;
-    private SlidingTabLayout mSlidingTabStrip;
-
-    private final Rect mChildrenInsets = new Rect();
+    private TabLayout mTabLayout;
 
     private int mCurrentItem;
 
@@ -55,36 +52,21 @@ public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
         mViewPager.setAdapter(mAdapter);
         mViewPager.setPageMargin(getResources().getDimensionPixelSize(R.dimen.spacing_minor));
 
-        mSlidingTabStrip = (SlidingTabLayout) view.findViewById(R.id.viewpager_tabs);
-        mSlidingTabStrip.setViewPager(mViewPager);
-        mSlidingTabStrip.setTabListener(new SlidingTabLayout.TabListener() {
+        mTabLayout = (TabLayout) view.findViewById(R.id.viewpager_tabs);
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onTabSelected(int pos) {
-                // NO-OP
+            public void onTabSelected(TabLayout.Tab tab) {
             }
 
             @Override
-            public void onTabReSelected(int pos) {
-                final Fragment fragment = mAdapter.getItem(pos);
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                final Fragment fragment = mAdapter.getItem(tab.getPosition());
                 if (fragment instanceof ListFragment) {
                     ((ListFragment) fragment).smoothScrollTo(0);
-                }
-            }
-        });
-
-        mSlidingTabStrip.setSelectedIndicatorColors(getResources().getColor(R.color.primary_accent_color));
-        mSlidingTabStrip.setDividerColors(getResources().getColor(R.color.primary_accent_color_dark_10));
-
-        mSlidingTabStrip.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                final int h = bottom - top;
-                mChildrenInsets.top = h;
-                propogateAdditionalInsetsToChildren(mChildrenInsets);
-
-                if (h > 0) {
-                    v.removeOnLayoutChangeListener(this);
                 }
             }
         });
@@ -104,7 +86,7 @@ public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
     @Override
     public void onResume() {
         super.onResume();
-        mSlidingTabStrip.getBackground().setAlpha(255);
+        mTabLayout.getBackground().setAlpha(255);
     }
 
     @Override
@@ -119,24 +101,17 @@ public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void populateInsets(Rect insets) {
-        ((ViewGroup.MarginLayoutParams) mSlidingTabStrip.getLayoutParams()).topMargin = insets.top;
-        mSlidingTabStrip.setPadding(insets.left, 0, insets.right, 0);
-    }
-
     protected ViewPager getViewPager() {
         return mViewPager;
     }
 
     protected void setFragments(List<Fragment> fragments) {
         mAdapter.setFragments(fragments);
-        mSlidingTabStrip.notifyDataSetChanged();
         mViewPager.setCurrentItem(mCurrentItem);
     }
 
-    protected SlidingTabLayout getSlidingTabStrip() {
-        return mSlidingTabStrip;
+    protected TabLayout getTabLayout() {
+        return mTabLayout;
     }
 
     protected TabPagerAdapter getAdapter() {
@@ -161,13 +136,7 @@ public abstract class BasePhilmTabFragment extends BasePhilmMovieFragment {
 
         @Override
         public final Fragment getItem(int position) {
-            final Fragment fragment = mFragments.get(position);
-
-            if (fragment instanceof InsetAwareFragment) {
-                ((InsetAwareFragment) fragment).setAdditionalInsets(mChildrenInsets);
-            }
-
-            return fragment;
+            return mFragments.get(position);
         }
 
         @Override

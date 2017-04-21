@@ -16,8 +16,6 @@
 
 package app.philm.in.fragments.base;
 
-import com.google.common.base.Preconditions;
-
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -25,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.AbsListView;
+
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -71,12 +71,6 @@ public abstract class BasePhilmMovieListFragment<E extends AbsListView>
 
             MenuItem item = menu.findItem(R.id.menu_filter);
             if (item != null) {
-                if (!PhilmCollections.isEmpty(mFilters)) {
-                    item.setIcon(R.drawable.ic_action_filter_enabled);
-                } else {
-                    item.setIcon(R.drawable.ic_action_filter);
-                }
-
                 updateItemCheckedState(menu, R.id.menu_filter_collection,
                         MovieController.MovieFilter.COLLECTION);
                 updateItemCheckedState(menu, R.id.menu_filter_seen,
@@ -221,8 +215,8 @@ public abstract class BasePhilmMovieListFragment<E extends AbsListView>
                         final int index = checkedItems.keyAt(i);
                         ListItem<PhilmMovie> listItem =
                                 (ListItem<PhilmMovie>) listView.getItemAtPosition(index);
-                        if (listItem.getType() == ListItem.TYPE_ITEM) {
-                            movies.add(listItem.getItem());
+                        if (listItem.getListType() == ListItem.TYPE_ITEM) {
+                            movies.add(listItem.getListItem());
                         }
                     }
                 }

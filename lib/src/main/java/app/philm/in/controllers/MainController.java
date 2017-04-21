@@ -16,11 +16,10 @@
 
 package app.philm.in.controllers;
 
-import com.google.common.base.Preconditions;
-
-import com.squareup.otto.Subscribe;
-
 import android.content.Intent;
+
+import com.google.common.base.Preconditions;
+import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -318,7 +317,7 @@ public class MainController extends BaseUiController<MainController.MainControll
 
     public boolean onHomeButtonPressed() {
         Display display = getDisplay();
-        if (display != null && display.popEntireFragmentBackStack()) {
+        if (display != null && (display.toggleDrawer() || display.popEntireFragmentBackStack())) {
             return true;
         }
         return false;
